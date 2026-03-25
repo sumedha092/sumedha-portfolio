@@ -28,7 +28,7 @@ const Index = () => {
     );
 
     // Tab title change
-    const originalTitle = "Sumedha Gupta — Software Engineer";
+    const originalTitle = "Sumedha Gupta";
     document.title = originalTitle;
     const handleVisibility = () => {
       document.title = document.hidden ? "Come back! 👀 — Sumedha Gupta" : originalTitle;
