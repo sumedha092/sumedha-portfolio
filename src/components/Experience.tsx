@@ -11,15 +11,17 @@ interface Station {
   tech: string[];
   metric?: string;
   winner?: boolean;
+  leadership?: boolean;
 }
 
 type TrackKey = "green" | "purple" | "amber" | "blue";
+
+const LEADERSHIP_Y = 200; // below the amber (160) track line
 
 const STATIONS: Station[] = [
   { name: "Finance Bot", year: "2023", x: 2, tracks: ["blue", "purple"], details: "Conversational AI for financial queries using OpenAI and NLP", tech: ["Python", "NLP", "OpenAI"], metric: "NLP-powered" },
   { name: "Grammy+Intel EDA", year: "Jan–Apr 2024", x: 14, tracks: ["amber"], details: "Data Analysis Traineeship — EDA on Grammy Award records and Intel Sustainability data. 100K+ records, SQL, Python, Pandas, Tableau", tech: ["SQL", "Python", "Pandas", "Tableau", "NumPy"], metric: "100K+ records" },
   { name: "Skillify", year: "Sep 2024", x: 30, tracks: ["blue", "green"], details: "Skill-sharing marketplace with live lifecycle", tech: ["Next.js", "Node.js", "MongoDB"], metric: "Real-time" },
-  { name: "ASU Section Leader", year: "Aug 2024–Dec 2025", x: 38, tracks: ["blue"], details: "Undergraduate TA mentoring 200+ students", tech: ["Leadership", "Mentorship"], metric: "200+ students" },
   { name: "BreathePulse", year: "Apr 2025", x: 48, tracks: ["purple", "blue"], details: "Full-stack computer vision wellness app — fatigue detection at 30 FPS, FastAPI backend, React frontend", tech: ["MediaPipe", "FastAPI", "React", "TypeScript", "Firebase"], metric: "30+ FPS" },
   { name: "MPC Cloud", year: "May–Aug 2025", x: 55, tracks: ["green"], details: "Software Engineer Intern — Spring Boot microservices", tech: ["Spring Boot", "PostgreSQL", "Docker"], metric: "Production" },
   { name: "Aithena", year: "Sep 2025", x: 68, tracks: ["purple", "blue"], details: "AI study partner matching in real time", tech: ["React", "FastAPI", "WebSockets"], metric: "100+ users" },
@@ -57,6 +59,8 @@ const LEGEND = [
   { key: "blue" as TrackKey, label: "Full-Stack Product" },
 ];
 
+const LEADERSHIP_COLOR = "#94A3B8";
+
 interface TooltipState {
   station: Station;
   x: number;
@@ -81,14 +85,13 @@ const Experience = () => {
     setHovered(station.name);
     const rect = (e.currentTarget as SVGElement).closest("svg")!.getBoundingClientRect();
     const cx = getStationCx(station.x);
-    const minY = Math.min(...station.tracks.map(t => TRACK_Y[t]));
-    // Convert SVG coords to screen coords
+    const markerY = Math.min(...station.tracks.map(t => TRACK_Y[t]));
     const svgW = rect.width;
     const svgH = rect.height;
     const scaleX = svgW / 1000;
-    const scaleY = svgH / 210;
+    const scaleY = svgH / 240;
     const screenX = rect.left + cx * scaleX;
-    const screenY = rect.top + minY * scaleY;
+    const screenY = rect.top + markerY * scaleY;
     setTooltip({ station, x: screenX, y: screenY });
   }, []);
 
@@ -96,6 +99,9 @@ const Experience = () => {
     setHovered(null);
     setTooltip(null);
   }, []);
+
+  const technicalStations = STATIONS.filter(s => !s.leadership);
+  const leadershipStations = STATIONS.filter(s => s.leadership);
 
   return (
     <section id="experience" className="py-24 px-6">
@@ -111,7 +117,7 @@ const Experience = () => {
         {/* Metro map — desktop */}
         <div ref={ref} className="relative hidden md:block overflow-x-auto pb-4 pr-16">
           <svg
-            viewBox="0 0 1000 210"
+            viewBox="0 0 1000 240"
             className="w-full min-w-[800px] h-auto"
             preserveAspectRatio="xMidYMid meet"
             style={{ overflow: "visible" }}
@@ -136,8 +142,13 @@ const Experience = () => {
               </text>
             ))}
 
-            {/* Stations */}
-            {STATIONS.map((station, i) => {
+            {/* Leadership row label */}
+            <text x="6" y={LEADERSHIP_Y + 4} fill={LEADERSHIP_COLOR} fontSize="8" fontFamily="Space Mono" opacity="0.7">
+              ★
+            </text>
+
+            {/* Technical stations */}
+            {technicalStations.map((station, i) => {
               const cx = getStationCx(station.x);
               const isActive = hovered === station.name;
               const minY = Math.min(...station.tracks.map(t => TRACK_Y[t]));
@@ -188,6 +199,43 @@ const Experience = () => {
                 </motion.g>
               );
             })}
+
+            {/* Leadership stations — rendered below all track lines */}
+            {leadershipStations.map((station, i) => {
+              const cx = getStationCx(station.x);
+              const isActive = hovered === station.name;
+
+              return (
+                <motion.g
+                  key={station.name}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={inView ? { scale: 1, opacity: 1 } : {}}
+                  transition={{ delay: 1.2 + i * 0.08, type: "spring", stiffness: 220, damping: 18 }}
+                  style={{ cursor: "pointer" }}
+                  onMouseEnter={e => handleMouseEnter(station, e)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  {/* Star marker */}
+                  <text
+                    x={cx} y={LEADERSHIP_Y + 4}
+                    textAnchor="middle"
+                    fontSize={isActive ? 16 : 13}
+                    fill={LEADERSHIP_COLOR}
+                    opacity={isActive ? 1 : 0.75}
+                    style={{ transition: "font-size 0.2s ease" }}
+                  >
+                    ★
+                  </text>
+
+                  <text x={cx} y={LEADERSHIP_Y + 18} textAnchor="middle" fontSize="7.5" fontFamily="DM Mono" fill={LEADERSHIP_COLOR} opacity={isActive ? 1 : 0.75}>
+                    {station.name}
+                  </text>
+                  <text x={cx} y={LEADERSHIP_Y + 27} textAnchor="middle" fontSize="6" fontFamily="Space Mono" fill={LEADERSHIP_COLOR} opacity="0.6">
+                    {station.year}
+                  </text>
+                </motion.g>
+              );
+            })}
           </svg>
 
           {/* Time axis */}
@@ -214,11 +262,12 @@ const Experience = () => {
               className="rounded-lg border p-3 shadow-2xl min-w-[160px]"
               style={{
                 background: "hsl(240 24% 10%)",
-                borderColor: tooltip.station.winner ? "#FFBE00" : "hsl(var(--border))",
+                borderColor: tooltip.station.winner ? "#FFBE00" : tooltip.station.leadership ? LEADERSHIP_COLOR : "hsl(var(--border))",
               }}
             >
               <div className="flex items-center gap-1.5 mb-1">
                 {tooltip.station.winner && <Trophy size={10} color="#FFBE00" />}
+                {tooltip.station.leadership && <span style={{ color: LEADERSHIP_COLOR, fontSize: 10 }}>★</span>}
                 <span className="font-display text-[11px] font-bold text-white">{tooltip.station.name}</span>
               </div>
               <span className="font-label text-[9px] text-[#7D8590] block mb-1">{tooltip.station.year}</span>
@@ -226,7 +275,7 @@ const Experience = () => {
                 <span className="font-label text-[9px] block mb-1" style={{ color: "#FFBE00" }}>HackASU 2026 Winner</span>
               )}
               {tooltip.station.metric && (
-                <span className="font-code text-[10px] block mb-2" style={{ color: "hsl(var(--teal))" }}>{tooltip.station.metric}</span>
+                <span className="font-code text-[10px] block mb-2" style={{ color: tooltip.station.leadership ? LEADERSHIP_COLOR : "hsl(var(--teal))" }}>{tooltip.station.metric}</span>
               )}
               <div className="flex flex-wrap gap-1">
                 {tooltip.station.tech.slice(0, 3).map(t => (
@@ -253,9 +302,12 @@ const Experience = () => {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    {station.tracks.map(t => (
-                      <div key={t} className="w-2 h-2 rounded-full" style={{ backgroundColor: TRACK_COLORS[t] }} />
-                    ))}
+                    {station.leadership
+                      ? <span style={{ color: LEADERSHIP_COLOR }}>★</span>
+                      : station.tracks.map(t => (
+                          <div key={t} className="w-2 h-2 rounded-full" style={{ backgroundColor: TRACK_COLORS[t] }} />
+                        ))
+                    }
                     <span className="font-display text-sm font-bold text-foreground">{station.name}</span>
                     {station.winner && <Trophy size={12} color="#FFBE00" />}
                   </div>
@@ -283,6 +335,10 @@ const Experience = () => {
               <span className="font-label text-[0.6rem] tracking-wider text-muted-foreground">{item.label}</span>
             </div>
           ))}
+          <div className="flex items-center gap-2">
+            <span style={{ color: LEADERSHIP_COLOR, fontSize: 12 }}>★</span>
+            <span className="font-label text-[0.6rem] tracking-wider text-muted-foreground">Leadership</span>
+          </div>
         </div>
       </div>
     </section>
