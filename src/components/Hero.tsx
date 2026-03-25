@@ -126,7 +126,7 @@ const Hero = () => {
 
   return (
     <section
-      className="relative min-h-screen flex items-center pt-16 pb-8 md:pb-0"
+      className="relative min-h-screen flex flex-col justify-center md:flex-row md:items-center pt-20 pb-12 md:pb-0"
       style={{ overflow: "visible" }}
     >
       {/* ── Vignette: darkens center-left so text always reads cleanly ── */}
@@ -179,7 +179,7 @@ const Hero = () => {
       </div>
 
       {/* ── HERO TEXT — strictly in the LEFT 55% ── */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-6">
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 mt-0 md:mt-0">
         {/*
           On desktop we constrain the content to 55% width so it can
           never drift into the terminal zone on the right.

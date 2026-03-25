@@ -69,7 +69,9 @@ interface TooltipState {
 
 const Experience = () => {
   const ref = useRef<HTMLDivElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
+  const mobileInView = useInView(mobileRef, { once: true, margin: "-50px" });
   const [hovered, setHovered] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
@@ -288,39 +290,48 @@ const Experience = () => {
           </div>
         )}
 
-        {/* Mobile: stacked cards */}
-        <div className="md:hidden space-y-3">
+        {/* Mobile: vertical timeline cards */}
+        <div ref={mobileRef} className="md:hidden relative pl-6 border-l-2 border-border space-y-6">
           {STATIONS.map((station, i) => (
             <motion.div
               key={station.name}
-              initial={{ opacity: 0, x: -20 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: i * 0.07 }}
-              className="rounded-lg border border-border p-4"
-              style={{ background: "hsl(var(--surface))" }}
+              initial={{ opacity: 0, x: -16 }}
+              animate={mobileInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: i * 0.06 }}
+              className="relative"
             >
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    {station.leadership
-                      ? <span style={{ color: LEADERSHIP_COLOR }}>★</span>
-                      : station.tracks.map(t => (
-                          <div key={t} className="w-2 h-2 rounded-full" style={{ backgroundColor: TRACK_COLORS[t] }} />
-                        ))
-                    }
-                    <span className="font-display text-sm font-bold text-foreground">{station.name}</span>
-                    {station.winner && <Trophy size={12} color="#FFBE00" />}
-                  </div>
-                  <p className="font-body text-xs text-muted-foreground">{station.details}</p>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {station.tech.map(t => (
-                      <span key={t} className="font-code text-[0.55rem] px-1.5 py-0.5 rounded bg-terminal/60 text-green/80">{t}</span>
+              {/* Timeline dot */}
+              <div
+                className="absolute -left-[1.85rem] top-1.5 w-3 h-3 rounded-full border-2 border-background"
+                style={{ backgroundColor: station.tracks.length > 0 ? TRACK_COLORS[station.tracks[0]] : LEADERSHIP_COLOR }}
+              />
+
+              <div className="rounded-lg border border-border p-4" style={{ background: "hsl(var(--surface))" }}>
+                {/* Header row */}
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="font-display text-sm font-bold text-foreground">{station.name}</span>
+                  {station.winner && <Trophy size={12} color="#FFBE00" />}
+                  <span className="font-label text-[0.55rem] text-muted-foreground ml-auto">{station.year}</span>
+                </div>
+
+                {/* Track color dots */}
+                <div className="flex gap-1 mb-2">
+                  {station.tracks.map(t => (
+                    <div key={t} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: TRACK_COLORS[t] }} />
+                  ))}
+                </div>
+
+                <p className="font-body text-xs text-muted-foreground mb-2">{station.details}</p>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap gap-1">
+                    {station.tech.slice(0, 3).map(t => (
+                      <span key={t} className="font-code text-[0.5rem] px-1.5 py-0.5 rounded" style={{ background: "hsl(var(--primary) / 0.1)", color: "hsl(var(--primary))" }}>{t}</span>
                     ))}
                   </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="font-label text-[0.55rem] text-muted-foreground block">{station.year}</span>
-                  {station.metric && <span className="font-display text-sm font-bold text-amber">{station.metric}</span>}
+                  {station.metric && (
+                    <span className="font-display text-sm font-bold shrink-0 ml-2" style={{ color: "hsl(var(--amber))" }}>{station.metric}</span>
+                  )}
                 </div>
               </div>
             </motion.div>

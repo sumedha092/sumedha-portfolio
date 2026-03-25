@@ -33,7 +33,7 @@ const Contact = () => {
     >
       <div ref={ref} className="max-w-4xl mx-auto text-center relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}>
-          <h2 className="font-display text-[clamp(2.5rem,7vw,6rem)] font-extrabold leading-[0.9] mb-4" style={{ color: "hsl(var(--foreground))" }}>
+          <h2 className="font-display text-[clamp(2rem,7vw,6rem)] font-extrabold leading-none mb-6 px-2" style={{ color: "hsl(var(--foreground))" }}>
             {"LET'S BUILD"}
             <br />
             <span style={{
@@ -41,6 +41,8 @@ const Contact = () => {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
+              display: "inline-block",
+              paddingBottom: "0.1em",
             }}>
               SOMETHING.
             </span>
