@@ -126,7 +126,7 @@ const Hero = () => {
 
   return (
     <section
-      className="relative min-h-screen flex items-center pt-16"
+      className="relative min-h-screen flex items-center pt-16 pb-8 md:pb-0"
       style={{ overflow: "visible" }}
     >
       {/* ── Vignette: darkens center-left so text always reads cleanly ── */}
@@ -176,11 +176,6 @@ const Hero = () => {
             />
           </circle>
         </svg>
-      </div>
-
-      {/* ── MOBILE terminal — sits below content, no overlap ── */}
-      <div className="absolute bottom-8 left-4 right-4 z-0 md:hidden">
-        <TerminalWindow title="sumedha@portfolio:~$" variant="typing" />
       </div>
 
       {/* ── HERO TEXT — strictly in the LEFT 55% ── */}
@@ -269,6 +264,11 @@ const Hero = () => {
               >
                 Résumé ↗
               </a>
+            </div>
+
+            {/* Mobile terminal — in flow, below buttons, never overlaps */}
+            <div className="mt-10 md:hidden">
+              <TerminalWindow title="sumedha@portfolio:~$" variant="typing" />
             </div>
           </motion.div>
         </div>
